@@ -1,0 +1,64 @@
+# -*- coding: utf-8 -*-
+import csv
+import glob
+import re
+from unidecode import unidecode
+# coding: utf-8
+
+for filename in glob.glob('*.csv'):
+    with open(filename, newline='', encoding='utf-8') as monFichierEntre:
+        reader = csv.reader(monFichierEntre, delimiter=';', doublequote=False)
+        nom_sortie='sortie_CUVFAU.csv'
+        with open(nom_sortie,'w',newline='', encoding='utf-8') as monFichierSortie:
+            writer = csv.writer(monFichierSortie, delimiter=';', quoting=csv.QUOTE_NONE, escapechar='', quotechar='')
+            for row in reader:
+                bEcrire = 0
+                if 'Info' in row[1]:
+                    bEcrire = 0
+                else:
+                    bEcrire = 1
+
+                    if row[6]=='BLANC' and ' BL' not in row[0]:
+                        chateau = row[0]+' BLANC'
+                    else:
+                        chateau = row[0]
+
+                    chateau = chateau.replace('"','')
+                    chateau = chateau.replace(',','')
+
+                    annee = row[1]
+
+                    if row[4] == '750':
+                        formatb = 'BO'
+                    elif row[4] == '1500':
+                        formatb = 'MG'
+                    elif row[4] == '3000' :
+                        formatb = 'DM'
+                    elif row[4] == '375':
+                        formatb = 'DE'
+
+                    prix = row[13]
+                    prix = prix.replace('.',',')
+
+                    sDispo = row[11]
+                    sPhy = row[12]
+                    Qte = int(sDispo)
+
+                    rCond = row[5]
+                    conditionnement = re.split(' ',rCond)[0]
+                    conditionnement = conditionnement.replace('CB','CBO')
+                    conditionnement = conditionnement.replace('0','')
+                    conditionnement = conditionnement.replace('CT','CC')
+                    if 'CB' not in conditionnement and 'CC' not in conditionnement :
+                        conditionnement = 'UNITE'
+
+                    commentaire = 'Stock Dispo : '+sDispo+'- Stock Physique : '+sPhy
+
+
+
+                    if bEcrire == 1 :
+                    # On fabrique la nouvelle ligne dans l'ordre voulu
+
+                        newRow=[chateau,annee,formatb,prix,Qte,conditionnement,commentaire]
+                        writer.writerow(newRow)
+            monFichierEntre.close()

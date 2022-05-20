@@ -1,0 +1,181 @@
+import csv
+import glob
+import re
+import time
+import sys
+from unidecode import unidecode
+# coding: utf-8
+
+import fichierFonction
+import re
+
+for filename in glob.glob('*.csv'):
+    with open(filename, newline='', encoding='utf-8') as monFichierEntre:
+        reader = csv.reader(monFichierEntre, delimiter=';', doublequote=False)
+        nom_sortie='sortie_CAVHUG.csv'
+        with open(nom_sortie,'w',newline='', encoding='utf-8') as monFichierSortie:
+            writer = csv.writer(monFichierSortie, delimiter=';', quoting=csv.QUOTE_NONE, escapechar='', quotechar='')
+            for row in reader:
+                officieux='1'
+
+                quantite = unidecode(row[2])
+
+                if len(quantite)==0 or not str(quantite).isnumeric():
+                    continue
+
+                # Nom du chateau
+                chateau=unidecode(row[0])
+
+                # Ancien code, engendré des erreurs, ex : Domaine de la Romanee-Conti (DRC) - Assortiment 2018 - 15  bouteilles [1X RC / 1X MT / 2X LT / 1X RI / 1X  RSV /1X GE / 2 X E / 3X CT / 3 X Vosne Romanee P M]
+                # Déplacer en fin de traitement
+
+                #if ' 20' in chateau:
+                #    iCha = chateau.find(' 20')
+                #    chateau = chateau[0:iCha]
+
+                #elif ' 19' in chateau:
+                #    iCha = chateau.find(' 19')
+                #    chateau = chateau[0:iCha]
+
+                commentaireAssortiment = 0
+
+                chateauDansCommentaire = ''
+
+                #if 'Assortiment' in chateau:
+                #    iCom = chateau.find('-')
+                #    tabChateau = chateau.split('-', 1)
+                #    chateauDansCommentaire = tabChateau[1]
+                #    chateau = chateau[0:iCom]
+                #    commentaireAssortiment = 1
+                
+                if '- Assortiment' in chateau:
+                    iCom = chateau.find('- Assortiment')
+                    chateauDansCommentaire = chateauDansCommentaire + chateau[iCom+1 : len(chateau)]
+                    chateau = chateau[0:iCom]
+                    commentaireAssortiment = 1
+                
+                if '- Cristal Coffret Bois' in chateau:
+                    iCom = chateau.find('- Cristal Coffret Bois')
+                    chateauDansCommentaire = chateauDansCommentaire + chateau[iCom+1 : len(chateau)]
+                    chateau = chateau[0:iCom]
+                    commentaireAssortiment = 1
+                
+                if  '- Coffret bois' in chateau:
+                    iCom = chateau.find('- Coffret bois')
+                    chateauDansCommentaire = chateauDansCommentaire + chateau[iCom+1 : len(chateau)]
+                    chateau = chateau[0:iCom]
+                    commentaireAssortiment = 1
+                
+                if '(carton de 12)' in chateau:
+                    iCom = chateau.rfind('(carton de 12)')
+                    chateauDansCommentaire = chateauDansCommentaire + chateau[iCom+1 : len(chateau)]
+                    chateau = chateau[0:iCom]
+                    commentaireAssortiment = 1
+
+                #Ne doit pas marcher, à revoir pour remplacer les lignes qui suivent
+                chateau = re.sub(r"""[0-9][0-9][0-9][0-9]""", '', chateau)
+
+                if ' 20' in chateau:
+                    iCha = chateau.find(' 20')
+                    chateau = chateau[0:iCha]
+
+                elif ' 19' in chateau:
+                    iCha = chateau.find(' 19')
+                    chateau = chateau[0:iCha]
+
+                # annee, si vins non millesimé on prend l'année systeme - 2
+                annee = unidecode(row[1])
+                mCom = 0
+
+                if annee=='NV' or annee=='':
+                    annee=int(time.strftime('%Y'))-2
+                    mCom=1
+
+                formatB = unidecode(row[3])
+                #formatB = fichierFonction.formatterFormatBouteille()
+
+                regex = re.compile(r'\d+')
+
+                resultatRegex = regex.findall(formatB)
+
+                if len(resultatRegex) == 0:
+                    formatB='NON RECONNU'
+                elif len(resultatRegex) == 1:
+                    formatB = resultatRegex[0]
+                elif len(resultatRegex) > 1:
+                    formatB = resultatRegex[0] + ',' + resultatRegex[1]
+
+                # format bouteille
+                if '75' in formatB or '70' in formatB:
+                    formatB='BO'
+                elif '150' in formatB:
+                    formatB='MG'
+                elif '300' in formatB or '3' in formatB:
+                    formatB='DM'
+                elif '500' in formatB:
+                    formatB='JE'
+                elif '600' in formatB:
+                    formatB='IM'
+                else:
+                    formatB='NON RECONNU'
+
+                # Prix, nettoyage de la chaine prix ascii
+                prix=repr(row[4])
+                prix=prix.replace("'","")
+                prix=prix.replace("\\","")
+                prix=prix.replace("u202f","")
+                
+                # conditionnement
+                if '(CBO 6)' in chateau or '[CBO3]' in chateau:
+                    print("passe1")
+                    if '(CBO 6)' in chateau:
+                        iCom = chateau.find('(CBO 6)')
+                        chateau = chateau[0:iCom]
+                    
+                        conditionnement = 'CBO6'
+                        quantite = 6
+                        prix = str(int(float(prix)/quantite))
+
+                    if '[CBO3]' in chateau:
+                        iCom = chateau.find('[CBO3]')
+                        chateau = chateau[0:iCom]
+                    
+                        conditionnement = 'CBO3'
+                        quantite = 3
+                        prix = str(int(float(prix)/quantite))
+
+                else:
+                    if formatB=='BO':
+                        if int(quantite)<12:
+                            conditionnement='UNITE'
+                        else:
+                            conditionnement='CBO12'
+                    elif formatB=='MG':
+                        if int(quantite)<6:
+                            conditionnement='UNITE'
+                        else:
+                            conditionnement='CBO6'
+                    elif formatB=='DM':
+                        if int(quantite)<3:
+                            conditionnement='UNITE'
+                        else:
+                            conditionnement='CBO3'
+                    else:
+                        conditionnement='CBO1'
+
+                #commentaire
+                if mCom==1:
+                    commentaire='Non Vintage / Verif cdt - '+row[5]
+                else:
+                    commentaire='Verif cdt - '+row[5]
+
+                if commentaireAssortiment == 1:
+                    commentaire = commentaire + chateauDansCommentaire
+                    print("commentaire : "+commentaire)
+
+                # On fabrique la nouvelle ligne dans l'ordre voulu
+                trou=''
+                newRow=[chateau,annee,formatB,prix,quantite,conditionnement,commentaire,officieux]
+                writer.writerow(newRow)
+
+            monFichierEntre.close()

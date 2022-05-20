@@ -1,0 +1,103 @@
+import csv
+import glob
+import re
+from unidecode import unidecode
+# coding: utf-8
+
+for filename in glob.glob('*.csv'):
+    with open(filename) as f:
+        print(f)
+        print(f.encoding)
+    with open(filename, newline='', encoding=f.encoding) as monFichierEntre:
+        print(monFichierEntre.encoding)
+        reader = csv.reader(monFichierEntre, delimiter=';', doublequote=False)
+        nom_sortie='sortie_FARR.csv'
+        with open(nom_sortie,'w',newline='', encoding=f.encoding) as monFichierSortie:
+            print(monFichierEntre.encoding)
+            writer = csv.writer(monFichierSortie, delimiter=';', quoting=csv.QUOTE_NONE, escapechar='', quotechar='')
+            for row in reader:
+                # Attribution des variables / colonnes
+                Region = unidecode(row[0]).upper()
+                print(Region)
+                Colour = unidecode(row[1]).upper()
+                print(Colour)
+                Vintage = unidecode(row[2])
+                print(Vintage)
+                Wine = unidecode(row[3]).upper()
+                print(Wine)
+                Size = unidecode(row[4]).upper()
+                print(Size)
+                Size_description = unidecode(row[5]).upper()
+                print(Size_description)
+                Details = unidecode(row[6]).upper()
+                print(Details)
+                Cases = unidecode(row[7])
+                print(Cases)
+                Bottles = unidecode(row[8])
+                print(Bottles)
+                Units = unidecode(row[12])
+                print(Units)
+                EUR_Unit = unidecode(row[14])
+                print(EUR_Unit)
+
+                # Normalisation du fichier
+                if Region == 'REGION':
+                    bEcrire = 0
+                else:
+                    bEcrire = 1
+
+                    # Nom du Vin / Chateau
+                    Chateau = Wine.replace(', ',' ')
+                    Chateau = Chateau.replace(',','A')
+                    Chateau = Chateau.replace('"','')
+
+
+                    # Millesime
+                    if Vintage == 'N.V.':
+                        Millesime = 'NV'
+                    elif Vintage == 'M.V.':
+                        Millesime = 'NV'
+                    else:
+                        Millesime = Vintage
+
+                    # Format bouteille
+                    if 'BT' in Size :
+                        Formatb = 'BO'
+                    else:
+                        Formatb = Size
+
+                    # Prix en euro par unité
+                    Prix = EUR_Unit
+                    Prix = Prix.replace('.',',')
+
+                    # Quantité
+                    Qte = Units
+
+                    # Conditionnement
+                    uQte = re.findall('[0-9]+',Size)
+                    sCollec = re.findall('[CM][OI][LX][LE][ED]?[C]?[T]?[I]?[O]?[N]?',Wine)
+                    if sCollec :
+                        Conditionnement = 'COLLEC'
+                    elif uQte and not sCollec and Vintage != 'M.V.':
+                        Conditionnement = 'CBO'+uQte[0]
+                    elif Vintage == 'M.V.':
+                        Conditionnement = 'COLLEC'
+                    else:
+                        if int(Qte)<12:
+                            Conditionnement = 'UNITE'
+                        else:
+                            Conditionnement = 'CBO12'
+
+                    if Conditionnement == 'COLLEC':
+                        Qte = '1'
+
+                    # Commentaire
+                    Commentaire = Details
+                    Commentaire = Commentaire.replace(',','')
+                    Commentaire = Commentaire.replace('"','')
+
+                if bEcrire == 1:
+                    newRow = [Chateau,Millesime,Formatb,Prix,Qte,Conditionnement,Commentaire]
+                    newRow=[i.strip() for i in newRow]
+                    writer.writerow(newRow)
+        monFichierEntre.close()

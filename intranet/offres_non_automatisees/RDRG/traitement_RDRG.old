@@ -1,0 +1,81 @@
+import csv
+import glob
+import re
+import time
+from unidecode import unidecode
+# coding: utf-8
+
+for filename in glob.glob('*.csv'):
+    with open(filename, newline='', encoding='utf-8') as monFichierEntre:
+        reader = csv.reader(monFichierEntre, delimiter=';', doublequote=False)
+        nom_sortie='sortie_RGRD.csv'
+        with open(nom_sortie,'w',newline='', encoding='utf-8') as monFichierSortie:
+            writer = csv.writer(monFichierSortie, delimiter=';', quoting=csv.QUOTE_NONE, escapechar='', quotechar='')
+            for row in reader:
+                if row[2]=='':
+                    pass
+                else:
+                    # Nom du chateau
+                    chateau=unidecode(row[2])+' '+unidecode(row[4])
+                    chateau=chateau.replace('Pauillac','')
+                    chateau=chateau.replace('Saint Julien','')
+                    chateau=chateau.replace('st julien','')
+                    chateau=chateau.replace('st estephe','')
+                    chateau=chateau.replace('Saint Estephe','')
+#                    chateau=chateau.replace('Margaux','')
+                    chateau=chateau.replace('Pessac leognan','')
+                    chateau=chateau.replace('Haut medoc','')
+                    chateau=chateau.replace('Pomerol','')
+                    chateau=chateau.replace('Saint Emilion','')
+                    chateau=chateau.replace('Cotes de castillon','')
+ #                   chateau=chateau.replace('margaux','')
+                    #chateau=re.sub(r'[0-9]','',chateau)
+                    # année
+                    annee=row[3]
+                    # quantite
+                    quantite=row[1]
+                    # Format de la bouteille
+                    if row[5]=='75cl':
+                        formatb='BO'
+                    elif row[5]=='75 cl':
+                        formatb='BO'
+                    elif row[5]=='MAG':
+                        formatb='MG'
+                    elif row[5]=='DMG':
+                        formatb='DM'
+                    elif row[5]=='JERO':
+                        formatb='JE'
+                    elif row[5]=='IMP':
+                        formatb='IM'
+                    elif row[5]=='6 L':
+                        formatb='IM'
+                    elif row[5]=='15 L':
+                        formatb='NA'
+                    else :
+                        formatb=row[5]
+                    # Prix , on nettoie la chaine prix
+                    fPrix=repr(row[6])
+                    fPrix=fPrix.replace("'","")
+                    fPrix=fPrix.replace("\\","")
+                    fPrix=fPrix.replace("u202f","")
+                    prix=unidecode(fPrix)
+                    prix=prix.replace(' EUR','')
+                    #conditionnement
+                    conditionnement=row[7]
+                    conditionnement=conditionnement.replace(' ','')
+                    conditionnement=conditionnement.replace('owc','CBO')
+                    conditionnement=conditionnement.replace('ct','CC')
+                    conditionnement=conditionnement.replace('ctn','CC')
+                    conditionnement=conditionnement.replace('CTN','CC')
+                    conditionnement=conditionnement.replace('CT0','CC')
+                    conditionnement=conditionnement.replace('CTO','CC')
+                    conditionnement=conditionnement.replace('CTO ','CC')
+                    conditionnement=conditionnement.replace('CT ','CC')
+                    conditionnement=conditionnement.replace('VRAC','UNITE')
+                    #commentaires
+                    commentaires=unidecode(row[8])
+                    # On fabrique la nouvelle ligne dans l'ordre voulu
+                    trou=''
+                    newRow=[chateau,annee,formatb,prix,quantite,conditionnement,commentaires]
+                    writer.writerow(newRow)
+            monFichierEntre.close()

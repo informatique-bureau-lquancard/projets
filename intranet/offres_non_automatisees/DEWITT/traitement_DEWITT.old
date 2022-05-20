@@ -1,0 +1,106 @@
+## coding: utf-8
+import csv
+import glob
+from queue import Empty
+import re
+import io
+import time
+import sys
+from unidecode import unidecode
+
+import sys
+sys.path.append("/var/www/html/php/fonctions_tarifs")
+import Fonction_tarifs as ft
+
+nomProfil : str = "DEWITT"
+extensionDebut : str = ".csv"
+extensionFin : str = ".csv"
+
+for filename in glob.glob('*' + extensionDebut):
+    with open(filename, newline='', encoding='utf-8') as monFichierEntre:
+        reader = csv.reader(monFichierEntre, delimiter=';', doublequote=False)
+        nom_sortie='sortie_' + nomProfil + extensionFin
+        with open(nom_sortie,'w',newline='', encoding='utf-8') as monFichierSortie:
+            writer = csv.writer(monFichierSortie, delimiter=';', quoting=csv.QUOTE_NONE, escapechar='|', quotechar='')
+
+            iChateau = 0
+            vCond = 0
+            trou='' # besoin de le faire une seule fois
+
+            for row in reader:
+                
+                bEcrire=0
+
+                if "BORDEAUX" in row[0] or "BOURGOGNE" in row[0] or "VALLEE DU RHONE" in row[0] or "AUTRES" in row[0] : #on identifie les lignes d'où doit partir le traitement
+                    iChateau = 1
+                else:
+                    if row[4]=='': # on exclue les lignes sans prix
+                        chateau = ''
+                        bEcrire = 0
+                    if 'vrac' in row[0] and row[4]=="":
+                        bEcrire = 0
+                        iVrac = 1
+                    elif 'vrac' not in row[0] and row[4]=="":
+                        bEcrire = 0
+                        iVrac = 0
+                    elif iChateau == 1: #on traite les lignes bordeaux
+
+                        # annee
+                        annee : str = ft.formaterAnnee(str(row[1]))
+
+                        bEcrire = 1
+
+                        # Formatage du nom du vin
+                        vin : str = ft.formaterVin("", unidecode(str(row[0])), "")
+
+                        print(vin)
+                        
+                        # Suppression de l'année dans le nom du vin et ajout dans l'année
+
+                        vinAnnee = ft.formaterVinAnnee(vin)
+
+                        if( vinAnnee[1] != "INDICE_ANNEE"):
+
+                            vin = vinAnnee[0]
+                            annee = vinAnnee[1]
+
+                        # Format de bouteille
+                        formatB = ft.formaterFormatBouteille(str( row[2] ))
+
+                        # Prix, nettoyage de la chaine prix ascii
+                        
+                        prix : str = ft.formaterPrix(str(row[4]))
+
+                        #quantite
+                        quantite : str = ft.formaterQuantite(str(repr(row[3])))
+
+                        quantite : str = quantite.replace("\\U202F", '')
+                        quantite : str = quantite.replace("'", '')
+
+                        #conditionnement
+
+                        if "COFFRET" in row[9]:
+                            conditionnement="Cof"
+                        elif row[9]=="":
+                            conditionnement="UNITE"
+                        elif row[9]!="":
+                            conditionnement=row[9]
+                            conditionnement=conditionnement.replace("CART","CC")
+                            conditionnement=conditionnement.replace("CO","CC")
+                            conditionnement=conditionnement.replace("OC","CC")
+                            conditionnement=conditionnement.replace("OWC","CBO")
+                            conditionnement=conditionnement.replace("UNIT","UNITE")
+
+                        #Commentaire
+                        commentaire=row[12]
+                        commentaire = commentaire.replace(',','')
+
+                    #écriture de la ligne
+                    if bEcrire==1 :
+                        print("ligne : " + vin + " " + annee + " " + formatB + " " + prix.replace("," , '') + " " + quantite + " " + conditionnement + " " + commentaire)
+
+                        newRow=[vin,annee,formatB,prix,quantite,conditionnement,commentaire]
+                        writer.writerow(newRow)
+
+
+            monFichierEntre.close()

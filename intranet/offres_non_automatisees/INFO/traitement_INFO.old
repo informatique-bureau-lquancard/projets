@@ -1,0 +1,63 @@
+import csv
+import glob
+import codecs
+from unidecode import unidecode
+import re
+import openpyxl
+# coding: utf-8
+
+for filename in glob.glob('*.xlsx'):
+    #with codecs.open(filename,encoding='cp1252', errors='ignore') as monFichierEntre:
+    with codecs.open(filename,encoding='utf-8') as monFichierEntre:
+
+        
+        
+        
+        
+        
+        
+        # reader = csv.reader(monFichierEntre, delimiter=';', doublequote=False)
+        # nom_sortie='sortie_INFO.csv'
+        # with open(nom_sortie,'w',newline='', encoding='utf-8') as monFichierSortie:
+        #     writer = csv.writer(monFichierSortie, delimiter=';', quoting=csv.QUOTE_NONE, escapechar='', quotechar='')
+        #     for row in reader:
+        #         if row[6]=='':
+        #             pass
+        #         else:
+        #             # Nom du chateau
+        #             chateau=row[1]
+        #             chateau=chateau.replace('é','e')
+        #             chateau=chateau.replace('è','e')
+        #             chateau=chateau.replace('â','a')
+        #             chateau=chateau.replace('à','a')
+        #             chateau=chateau.replace('ê','e')
+        #             chateau=chateau.replace('√©','e')
+        #             chateau=chateau.replace('b√©','e')
+        #             chateau=chateau.replace('√®','e')
+        #             chateau=chateau.replace('√¢','a')
+
+        #             # année
+        #             annee=row[2]
+        #             # Format de la bouteille
+        #             formatb='BO'
+        #             # Prix
+        #             prix=row[6]
+        #             # quantite
+        #             if row[7] == 'Nous consulter':
+        #                 quantite = '0'
+        #                 commentaire = row[7]
+        #                 conditionnement = 'CBO12'
+        #             elif 'cb' in row[7] :
+        #                 iQteCond = row[7].split('cb')
+        #                 qtecb = int(re.findall('[\d]+',iQteCond[0])[0])
+        #                 uCond = int(iQteCond[1])
+        #                 quantite = qtecb * uCond
+        #                 conditionnement = 'CBO'+iQteCond[1]
+        #                 commentaire = ""
+
+
+                    Officieux = '1'
+                    # On fabrique la nouvelle ligne dans l'ordre voulu
+                    newRow=[chateau,annee,formatb,prix,quantite,conditionnement,commentaire]
+                    writer.writerow(newRow)
+        monFichierEntre.close()

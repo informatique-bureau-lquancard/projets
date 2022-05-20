@@ -1,0 +1,152 @@
+import csv
+import re
+import glob
+from unidecode import unidecode
+from collections import Counter
+
+
+for filename in glob.glob('*.csv'):
+    with open(filename, newline='', encoding='utf-8') as monFichierEntre:
+        reader = csv.reader(monFichierEntre, delimiter=';', doublequote=False)
+        nom_sortie='sortie_k45u4LJ0B.csv'
+        with open(nom_sortie,'w',newline='', encoding='utf-8') as monFichierSortie:
+            writer = csv.writer(monFichierSortie, delimiter=';', quoting=csv.QUOTE_NONE, escapechar=';', quotechar='')
+
+            enTete = ['Numero Bordereaux','Nom Acheteur','Vin','Millesime','Quantite','Format','Prix','Total']
+            writer.writerow(enTete)
+
+            m = 0
+            p = 0
+            for row in reader :
+              if 'Bordereau' in row[0] :
+                bEcrire = 0
+              else:
+                bEcrire = 1
+
+                if ',' in row[4]:
+                  milfinder = row[4]
+                  milfinder = milfinder.split(',')
+                  Lm = len(milfinder)
+                  while m <= Lm :
+                    millesime = milfinder[m-1]
+                    m = m + 1
+
+                  prixfinder = row[7]
+                  prixfinder = prixfinder.split(',')
+                  Lp = len(prixfinder)
+                  while p <= Lp :
+                    Prix = prixfinder[p-1]
+                    p = p + 1
+
+
+
+                # else:
+                #   millesime = row[4]
+                #   Prix = row[7]
+
+
+
+                # Bordereau = row[0]
+                # Acheteur = row[1]
+                # Vin = unidecode(row[3])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              # Ligne = row[0]
+              # Ligne = Ligne.replace('√¢','a')
+              # Ligne = Ligne.replace('‚Ç¨','')
+
+              # if "Chateau" in Ligne :
+              #   bEcrire = 1
+              # else :
+              #   bEcrire = 0
+
+              # if bEcrire == 1 :
+
+                # if "\n" in Ligne :
+                #   Ligne = Ligne.strip(',,\n')
+                #   info_Bdx = Ligne.split('Chateau')
+                #   info_Bdx_generale = info_Bdx[0]
+                #   info_Bdx_detail = info_Bdx[1].split('"')
+
+                #   # Recherche du Numéro de Bordereaux
+                #   Num_Bdx = info_Bdx_generale.split(',')[0]
+
+                #   # Recherche de l'acheteur
+                #   Acheteur = info_Bdx_generale.split(',')[1]
+
+                #   # Parcours de la chaine et récupération de tous les millesimes présents dans un bordereaux (info_Bdx_detail)
+                #   rMill = info_Bdx_detail[0]
+                #   rMill = re.findall('[0-9][0-9][0-9][0-9]',rMill)
+
+                #   # Parcours de la chaine et récupération de tous les vins présents dans le bordereaux.
+                #   rVin = info_Bdx_detail[3]
+                #   rVin = rVin.split(",")
+
+                #   # Récupération des quantités
+                #   rQte = info_Bdx_detail[7]
+                #   rQte = rQte.split(",")
+
+                #   # Récupération du prix
+                #   rPrix = info_Bdx_detail[11]
+                #   rPrix = rPrix.split(",")
+                # else:
+                #   info_Bdx = Ligne.split('Chateau')
+                #   info_Bdx_generale = info_Bdx[0]
+                #   info_Bdx_detail = info_Bdx[1].split('"')
+                #   # Recherche du Numéro de Bordereaux
+                #   Num_Bdx = info_Bdx_generale.split(',')[0]
+                #   # Recherche de l'acheteur
+                #   Acheteur = info_Bdx_generale.split(',')[1]
+                #   # Parcours de la chaine et récupération de tous les millesimes présents dans un bordereaux (info_Bdx_detail)
+                #   rMill = info_Bdx_detail[1]
+                #   rMill = re.findall('[0-9][0-9][0-9][0-9]',rMill)
+
+                #   # Parcours de la chaine et récupération de tous les vins présents dans le bordereaux.
+                #   rVin = info_Bdx_detail[5]
+                #   rVin = rVin.split(",")
+
+                #   # Récupération des quantités
+                #   rQte = info_Bdx_detail[9]
+                #   rQte = rQte.split(",")
+
+                #   # Récupération du prix
+                #   rPrix = info_Bdx_detail[13]
+                #   rPrix = rPrix.split(",")
+
+
+
+                # for i in range(len(rVin)):
+                #   Qte = rQte[i].split('(')[0]
+                #   Formatb = rQte[i].split('(')[1].replace(')','')
+                #   Prix = rPrix[i]
+                #   TotalVin = int(Qte)*float(Prix)
+
+                #   newRow = [rPrix]
+                #   newRow = [Num_Bdx,Acheteur,rVin[i],rMill[i],Qte,Formatb,Prix,TotalVin]
+
+
+
+
+
+
+
+
+
+
+
+

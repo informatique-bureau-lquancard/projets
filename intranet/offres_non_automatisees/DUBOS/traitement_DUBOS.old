@@ -1,0 +1,72 @@
+# -*- coding: utf-8 -*-
+import csv
+import glob
+import re
+# coding: utf-8
+
+for filename in glob.glob('*.csv'):
+    with open(filename, newline='', encoding='utf-8') as monFichierEntre:
+        reader = csv.reader(monFichierEntre, delimiter=';', doublequote=False)
+        nom_sortie='sortie_DUBOS.csv'
+        with open(nom_sortie,'w',newline='', encoding='utf-8') as monFichierSortie:
+            writer = csv.writer(monFichierSortie, delimiter=';', quoting=csv.QUOTE_NONE, escapechar='', quotechar='')
+            for row in reader:
+                if row[1]=='Mill.':
+                    pass
+                else:
+                    # Nom du chateau
+                    if row[4]=='Pessac-Léognan':
+                        if row[3]=='Blanc':
+                            chateau=row[0]+' Blanc'
+                            chateau=chateau.replace('Â','A')
+                        else:
+                            chateau=row[0]
+                            chateau=chateau.replace('Â','A')
+                    elif row[4]=='Bordeaux':
+                        if row[3]=='Blanc':
+                            chateau=row[0]+' Blanc'
+                            chateau=chateau.replace('Â','A')
+                        else:
+                            chateau=row[0]
+                            chateau=chateau.replace('Â','A')
+                    else:
+                        chateau=row[0]
+                        chateau=chateau.replace('Â','A')
+                          
+                    # année, on garde seulement la date
+                    annee=row[1]
+                    # Format de la bouteille
+                    if row[2]=='75cl':
+                        formatb='BO'
+                    elif row[2]=='37,5cl':
+                        formatb='DE'
+                    elif row[2]=='150cl':
+                        formatb='MG'
+                    elif row[2]=='300cl':
+                        formatb='DM'
+                    elif row[2]=='500cl':
+                        formatb='JE'
+                    elif row[2]=='600cl':
+                        formatb='IM'
+                    else :
+                        formatb=row[2]
+                    # Prix
+                    prix=row[6]
+                    prix=prix.replace('€','')
+                    prix=prix.replace('.',',')
+                    # quantite
+                    if row[7]=='':
+                        quantite='0'
+                    else:                    
+                        qtecs=row[7]
+                        formatcs=row[5]
+                        quantite=str(int(qtecs)*int(formatcs))
+                    # conditionnement
+                    conditionnement='CBO'+row[5]
+                    # Commentaire
+                    commentaire=row[4]
+                    # On fabrique la nouvelle ligne dans l'ordre voulu
+                    trou=''
+                    newRow=[chateau,annee,formatb,prix,quantite,conditionnement,commentaire,trou,trou,trou]
+                    writer.writerow(newRow)
+            monFichierEntre.close()

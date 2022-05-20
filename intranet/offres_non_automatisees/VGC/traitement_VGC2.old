@@ -1,0 +1,79 @@
+import csv
+import glob
+import re
+from unidecode import unidecode
+import time
+# coding: utf-8
+
+for filename in glob.glob('*.csv'):
+    with open(filename, newline='', encoding='utf-8') as monFichierEntre:
+        reader = csv.reader(monFichierEntre, delimiter=';', doublequote=False)
+        nom_sortie='sortie_VGC2.csv'
+        with open(nom_sortie,'w',newline='', encoding='utf-8') as monFichierSortie:
+            writer = csv.writer(monFichierSortie, delimiter=';', quoting=csv.QUOTE_NONE, escapechar='', quotechar='')
+            for row in reader:
+                # Chateau
+                if 'Bordeaux' in row[0]:
+                    chateau=unidecode(row[0])
+                    chateau=chateau.replace(',','a')
+                    chateau=chateau.replace('Bordeaux','')
+                elif 'Champagne' in row[0]:
+                    chateau=unidecode(row[0])
+                    chateau=chateau.replace(',','a')
+                elif 'Rhone' in row[0]:
+                    chateau=unidecode(row[0])
+                    chateau=chateau.replace(',','a')
+                elif 'Loire' in row[0]:
+                    chateau=unidecode(row[0])
+                    chateau=chateau.replace(',','a')
+                else:
+                    chateau=unidecode(str(row[0]))
+                    chateau=chateau.replace(',','a')
+
+                #chateau=re.sub(r'[a-zA-Z]','',chateau)
+                iMill19=chateau.find('19')
+                iMill20=chateau.find('20')
+
+                if '20' in chateau:
+                    chateau=chateau[:iMill20]
+                elif '19' in chateau:
+                    chateau=chateau[:iMill19]
+
+                chateau = chateau.strip()
+
+                # Annee
+                if row[1] == "0" or row[1]=="":
+                    annee = 'NV'
+                else:
+                    annee=row[1]
+
+                #Formatb
+                formatb=row[2]
+
+                #prix
+                prix=row[3]
+
+                #quantite
+                quantite=row[4]
+
+                #conditionnement
+                conditionnement=row[5]
+
+                # commentaire
+                commentaire=unidecode(row[6])
+                commentaire = commentaire.strip()
+                commentaire = commentaire.lower()
+                commentaire = commentaire.replace('  ',' ')
+                if commentaire != '':
+                    c1 = commentaire[0]
+                    if c1 == '-':
+                        commentaire=commentaire.replace(c1,' -')
+
+
+
+
+                #on construit la nouvelle ligne
+                trou=''
+                newRow=[chateau,annee,formatb,prix,quantite,conditionnement,commentaire]
+                writer.writerow(newRow)
+        monFichierEntre.close()

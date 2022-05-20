@@ -1,0 +1,111 @@
+## coding: utf-8
+import csv
+import glob
+import re
+import io
+import time
+from unidecode import unidecode
+
+
+for filename in glob.glob('*.csv'):
+    with open(filename, newline='', encoding='utf-8') as monFichierEntre:
+        reader = csv.reader(monFichierEntre, delimiter=';', doublequote=False)
+        nom_sortie='sortie_ARIVOF.csv'
+        with open(nom_sortie,'w',newline='', encoding='utf-8') as monFichierSortie:
+            writer = csv.writer(monFichierSortie, delimiter=';', quoting=csv.QUOTE_NONE, escapechar='|', quotechar='')
+
+            index_chateau = 0
+            vCond = 0
+            trou='' # besoin de le faire une seule fois
+
+            for row in reader:
+                bEcrire=0
+                #il ne faut rien faire sur les lignes d'en-tête
+                if row[0]=="APPELLATION ":
+                    bEcrire=0
+                elif row[0]=="":
+                    bEcrire=0
+                elif row[4]=="":
+                    bEcrire=0
+                else:
+                    # A partir de là, on traite les lignes et ne surtout pas oublier les vins blancs !
+                    bEcrire=1
+                    if 'Blanc' in row[0]:
+                        if 'Blanc' in row[1] or 'blanc' in row[1]:
+                            chateau=unidecode(row[1])
+                        else:
+                            chateau=unidecode(row[1])+' blanc'
+                    else:
+                        chateau=unidecode(row[1])
+
+
+
+                    # annee
+                    if row[3]=='NV':
+                        annee=time.strftime('%Y')
+                    else:
+                        annee=row[3]
+
+                    # Format de bouteille
+                    if row[5]=='bottle':
+                        formatb='BO'
+                    elif row[5]=='1/2 bottle':
+                        formatb='DE'
+                    elif row[5]=='magnum':
+                        formatb='MG'
+                    elif row[5]=='double-mag':
+                        formatb='DM'
+                    elif row[5]=='imperial':
+                        formatb='IM'
+                    elif row[5]=='jeroboam':
+                        formatb='JE'
+                    elif row[5]=='balt.':
+                        formatb='BA'
+                    elif row[5]=='nabu.':
+                        formatb='NA'
+                    elif row[5]=='salm.':
+                        formatb='SA'
+                    elif row[5]=='Primat':
+                        formatb='BABY'
+                    else:
+                        formatb=row[5]
+
+                    # Prix , on nettoie la chaine prix
+                    fPrix=repr(row[4])
+                    fPrix=fPrix.replace("'","")
+                    fPrix=fPrix.replace("\\","")
+                    fPrix=fPrix.replace("u202f","")
+                    prix=unidecode(fPrix)
+                    prix=prix.replace(' EUR','')
+
+                    #quantite
+                    quantite=0
+
+                    if formatb=='BO':
+                        conditionnement='CBO12'
+                    elif formatb=='DE':
+                        conditionnement='CBO24DE'
+                    elif formatb=='MG':
+                        conditionnement='CBO6'
+                    elif formatb=='DM':
+                        conditionnement='CBO3'
+                    else:
+                        conditionnement='UNITE'
+
+
+                    #Commentaire
+                    commentaire='VERIF CDT - Qte = '+row[5]
+
+
+
+                # écriture de la ligne
+                # On fabrique la nouvelle ligne dans l'ordre voulu
+                if bEcrire==1 :
+                    chateau = chateau.strip()
+                    chateau = chateau.replace('"','')
+                    chateau = chateau.replace(',','')
+                    newRow=[chateau,annee,formatb,prix,quantite,conditionnement,commentaire]
+                    writer.writerow(newRow)
+
+
+            monFichierEntre.close()

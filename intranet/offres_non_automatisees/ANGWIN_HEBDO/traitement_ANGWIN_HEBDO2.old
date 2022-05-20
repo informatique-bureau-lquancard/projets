@@ -1,0 +1,128 @@
+# coding: utf-8
+import csv
+import os
+import glob
+import re
+import io
+import time
+from typing import ItemsView
+from xml.dom.expatbuilder import Namespaces
+from numpy import array
+from unidecode import unidecode
+import lxml
+from lxml import etree
+from lxml import html
+from io import StringIO
+import requests
+import sys
+import xml.etree.ElementTree as ET
+import urllib
+import urllib.request
+from urllib.request import Request, urlopen
+import feedparser
+import json     
+
+
+url = 'https://www.vinsetmillesimes.com/gmerchantcenterpro87f0116d88fbb4ac32bbbe5f4fd44afc.fr.EUR.shop1.product.xml'
+
+page = requests.get(url).text.encode('utf-8')
+#print(page)
+
+#tree = ET.parse(page)
+#namespace = {"g" : "http://base.google.com/ns/1.0"}
+
+# for item in tree.findall('g:id', namespace):
+#     id = item.get('id')
+#     print("coucou")
+
+#Prix = etree.Element("g:price")
+
+# feed = feedparser.parse(xml)
+# print(feed)
+
+# nom_sortie = 'sortie_ANGWIN_HEBDO.csv'
+
+# def conditionnement_par_defaut(formatb,quantite):
+#     if formatb == 'DE':
+#         if quantite < 24 :
+#             conditionnement = 'UNITE'
+#         else:
+#             conditionnement = 'CBO24DE'
+#     elif formatb == 'BO' or 'CL':
+#         if quantite < 12 :
+#             conditionnement = 'UNITE'
+#         else:
+#             conditionnement = 'CBO12'
+#     elif formatb == 'MG' :
+#         if quantite < 6 :
+#             conditionnement = 'UNITE'
+#         else:
+#             conditionnement = 'CBO6'
+#     elif formatb == 'DM':
+#         if quantite < 3 :
+#             conditionnement = 'UNITE'
+#         else:
+#             conditionnement = 'CBO3'
+#     else:
+#         conditionnement = 'CBO1'
+    
+#     return conditionnement
+
+# with open(nom_sortie,'w',newline='', encoding='utf-8') as monFichierSortie:
+#     writer = csv.writer(monFichierSortie, delimiter=';', quoting=csv.QUOTE_NONE, escapechar=';', quotechar='')
+    
+#     for vin in xml.xpath('/rss/channel/item/description'):
+#         vin = unidecode(vin.text).replace('A\'','o').replace('AC/','a').replace('A"','e').replace('A(c)','e')
+    
+#     for item in root.findall('{http://base.google.com/ns/1.0}/rss/channel/'):
+#         print(item)
+    
+    
+
+
+    
+        
+#         print(item)
+        #item = entry.description
+        #print(item)
+        # prix_ttc = entry.g_price.replace(' EUR','')
+        # prix_ht = float(prix_ttc)/float(1.2)
+        # prix = str(prix_ht).replace('.',',')
+        # quantite = entry.g_sell_on_google_quantity
+        # couleur = entry.g_color
+    
+        # rec_millesime = re.findall('[0-9][0-9][0-9][0-9]',item)
+        
+        # if rec_millesime :
+        #     millesime = rec_millesime[0]
+        # else:
+        #     millesime = 'NV'
+        
+        # vin = unidecode(item.split(millesime)[0]).replace(';','')
+        
+        # rec_formatb = re.findall('[0-9]?[,]?[0-9][eE0-9][cC]?[lL]',item)
+        # formatb_dict = ['Magnum','Double Magnum', 'Jeroboam', 'Imper']
+        # formatb = ''
+        # for f in formatb_dict :
+        #     if f in item :
+        #         iFormat = item.find(f)
+        #         formatb = item[int(iFormat):]
+        #     else:
+        #         break
+
+        # if rec_formatb and formatb == '':
+        #     formatb = rec_formatb[0]
+        # elif 'Imperiale' in item :
+        #     formatb = 'IM'
+        # elif formatb == '' :
+        #     formatb = 'BO'
+
+        # formatb = formatb.replace('Double Magnum','DM').replace('Magnum','MG').replace('Jeroboam','JE').replace('62cl','BO').replace('70cl','BO').replace('300cl','DM').replace('300CL','DM').replace(' 3L','')
+        
+
+        # conditionnement = conditionnement_par_defaut(formatb,int(quantite))
+        # commentaire = 'Verif CDT'
+            
+
+        # newRow=[vin, millesime, formatb, prix, quantite, conditionnement, commentaire]
+        # writer.writerow(newRow)

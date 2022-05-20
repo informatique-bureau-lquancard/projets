@@ -1,0 +1,100 @@
+## coding: utf-8
+import csv
+import glob
+import re
+import io
+import time
+from unidecode import unidecode
+
+
+for filename in glob.glob('*.csv'):
+    with open(filename, newline='', encoding='utf-8') as monFichierEntre:
+        reader = csv.reader(monFichierEntre, delimiter=';', doublequote=False)
+        nom_sortie='sortie_JOHNOF.csv'
+        with open(nom_sortie,'w',newline='', encoding='utf-8') as monFichierSortie:
+            writer = csv.writer(monFichierSortie, delimiter=';', quoting=csv.QUOTE_NONE, escapechar='|', quotechar='')
+
+            index_chateau = 0
+            vCond = 0
+            trou='' # besoin de le faire une seule fois
+            
+            for row in reader:
+                bEcrire=0
+                #il ne faut rien faire sur les lignes d'en-tête
+                if row[7]=="" or row[0]=="":
+                    bEcrire=0
+                elif 'Format' in row[0]:
+                    bEcrire=0 
+                else:
+                    # A partir de là, on traite les lignes et ne surtout pas oublier les vins blancs !
+                    bEcrire=1
+                    chateau=row[1]
+                    
+
+                    # annee
+                    if row[2]=='NV':
+                        annee=time.strftime('%Y')
+                    else:
+                        annee=row[2]
+
+                    # Format de bouteille
+                    if row[0]=='Blle':
+                        formatb='BO'
+                    elif row[0]=='Halves':
+                        formatb='DE'
+                    elif row[0]=='Mag':
+                        formatb='MG'
+                    elif row[0]=='DMag':
+                        formatb='DM'
+                    elif row[0]=='Imp(6L)':
+                        formatb='IM'
+                    elif row[0]=='Jero':
+                        formatb='JE'
+                    elif row[0]=='Balt':
+                        formatb='BA'
+                    elif row[0]=='Nabu':
+                        formatb='NA'
+                    elif row[0]=='Salma':
+                        formatb='SA'
+                    elif row[0]=='Baby':
+                        formatb='BABY'
+                    else:
+                        formatb=row[0]
+
+                    # Prix , on nettoie la chaine prix
+                    fPrix=repr(row[7])
+                    fPrix=fPrix.replace("'","")
+                    fPrix=fPrix.replace("\\","")
+                    fPrix=fPrix.replace("u202f","")
+                    prix=unidecode(fPrix)
+                    prix=prix.replace(' EUR','')
+
+                    #quantite
+                    quantite=0
+
+                    #on applique le conditionnement par defaut selon le format bouteille et la quantité
+                    if '/6' in row[3]:
+                        conditionnement='CBO6'
+                    elif '/24 halves' in row[3]:
+                        conditionnement='CBO24DE'
+                    elif 'cs' in row[3] and '/' not in row[3] and 'ag' not in row[3]:
+                        conditionnement='CBO12'
+                    else:
+                        conditionnement='UNITE'
+
+
+
+                    #Commentaire
+                    commentaire='VERIF CDT - Qte = '+row[3]
+
+
+                       
+
+                # écriture de la ligne
+                # On fabrique la nouvelle ligne dans l'ordre voulu
+                if bEcrire==1 :
+                    newRow=[chateau,annee,formatb,prix,quantite,conditionnement,commentaire,trou,trou,trou]
+                    writer.writerow(newRow)
+                    
+                    
+            monFichierEntre.close()

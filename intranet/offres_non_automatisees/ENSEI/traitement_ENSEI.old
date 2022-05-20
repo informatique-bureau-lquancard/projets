@@ -1,0 +1,113 @@
+import csv
+import glob
+import re
+
+from unidecode import unidecode
+
+# coding: utf-8
+
+for filename in glob.glob('*.csv'):
+    with open(filename, newline='', encoding='utf-8') as monFichierEntre:
+        reader = csv.reader(monFichierEntre, delimiter=';', doublequote=False)
+        nom_sortie='sortie_ENSEI.csv'
+        with open(nom_sortie,'w',newline='', encoding='utf-8') as monFichierSortie:
+            writer = csv.writer(monFichierSortie, delimiter=';', quoting=csv.QUOTE_NONE, escapechar='', quotechar='')
+            for row in reader:
+                if row[1]=='':
+                    pass
+                elif row[1]=='Mill.':
+                    pass
+                else:
+                    # Nom du chateau
+                    chateau=row[0]
+                    chateau=chateau.replace('Â','A')
+                    # chateau=re.sub(r'[0-9]','',chateau) ??
+                    # année
+                    annee=row[1]
+                    # quantite
+                    quantite=row[5]
+                    quantite=quantite.replace(" ","")
+                    # Format de la bouteille
+                    if row[2].upper()=='BOUTEILLE':
+                        formatb='BO'
+                    elif row[2].upper()=='MAGNUM' or 'MAGNUMS':
+                        formatb='MG'
+                    elif row[2].upper()=='DEMI' :
+                        formatb='DE'
+                    else:
+                        formatb=''
+                    # Prix
+                    fPrix=repr(row[4])
+                    fPrix=unidecode(fPrix)
+                    fPrix=fPrix.replace("'","")
+                    fPrix=fPrix.replace("\\","")
+                    fPrix=fPrix.replace("u202f","")
+                    fPrix=fPrix.replace(".",",")
+                    fPrix=fPrix.replace(" EUR","")
+                    prix=fPrix
+                    #conditionnement
+                    iCond = unidecode(row[6]).upper()
+                    if iCond=='CB NEUTRE':
+                        conditionnement='CBN'
+                    elif iCond=='CBOP6':
+                        conditionnement='CBO6'
+                        commentaire='CBOP6 - '+row[8]+' - '+row[7]
+                        commentaire=commentaire.replace('oui','Logo FE')
+                    elif iCond=='CBOP 6':
+                        conditionnement='CBO6'
+                        commentaire='CBOP6 - '+row[8]+' - '+row[7]
+                        commentaire=commentaire.replace('oui','Logo FE')
+                    elif iCond=='CBO 6 CERCLEE':
+                        conditionnement='CBO6'
+                        commentaire='CBO 6 CERCLEE - '+row[8]+' - '+row[7]
+                        commentaire=commentaire.replace('oui','Logo FE')
+                    elif iCond=='CBOP12':
+                        conditionnement='CBO12'
+                        commentaire='CBOP12 - '+row[8]+' - '+row[7]
+                        commentaire=commentaire.replace('oui','Logo FE')
+                    elif iCond=='CBOP 12':
+                        conditionnement='CBO12'
+                        commentaire='CBOP12 - '+row[8]+' - '+row[7]
+                        commentaire=commentaire.replace('oui','Logo FE')
+                    elif iCond=='CBO 12/CBOP12':
+                        conditionnement='CBO12'
+                        commentaire='CBO 12/CBOP12 - '+row[8]+' - '+row[7]
+                        commentaire=commentaire.replace('oui','Logo FE')
+                    elif iCond=='CBO12/CBOP12':
+                        conditionnement='CBO12'
+                        commentaire='CBO 12/CBOP12 - '+row[8]+' - '+row[7]
+                        commentaire=commentaire.replace('oui','Logo FE')
+                    elif iCond=='CBO12/CBOP 12':
+                        conditionnement='CBO12'
+                        commentaire='CBO 12/CBOP12 - '+row[8]+' - '+row[7]
+                    elif iCond=='CBO 12/CBOP 12':
+                        conditionnement='CBO12'
+                        commentaire='CBO 12/CBOP12 - '+row[8]+' - '+row[7]
+                        commentaire=commentaire.replace('oui','Logo FE')
+                    elif iCond=='CB NEUTRE':
+                        conditionnement='CBN'
+                        commentaire='CB NEUTRE - '+row[8]+' - '+row[7]
+                        commentaire=commentaire.replace('oui','Logo FE')
+                    elif iCond=='CB6 Neutre':
+                        conditionnement='CBN6'
+                        commentaire=row[8]+' - '+row[7]
+                        commentaire=commentaire.replace('oui','Logo FE')
+                    elif iCond=='CB12 Neutre':
+                        conditionnement='CBN12'
+                        commentaire=row[8]+' - '+row[7]
+                        commentaire=commentaire.replace('oui','Logo FE')
+                    elif iCond=='VRAC':
+                        conditionnement='UNITE'
+                        commentaire=row[8]+' - '+row[7]
+                        commentaire=commentaire.replace('oui','Logo FE')
+                    else:
+                        conditionnement=iCond
+                        conditionnement=conditionnement.replace(' ','')
+                        commentaire=row[8]+' - '+row[7]
+                        commentaire=commentaire.replace('oui','Logo FE')
+
+                    # On fabrique la nouvelle ligne dans l'ordre voulu
+                    trou=''
+                    newRow=[chateau,annee,formatb,prix,quantite,conditionnement,commentaire,trou,trou,trou]
+                    writer.writerow(newRow)
+            monFichierEntre.close()

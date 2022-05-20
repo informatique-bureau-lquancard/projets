@@ -1,0 +1,169 @@
+import csv
+import glob
+import re
+from unidecode import unidecode
+
+# coding: utf-8
+
+for filename in glob.glob('*.csv'):
+    with open(filename, newline='', encoding='utf-8') as monFichierEntre:
+        reader = csv.reader(monFichierEntre, delimiter=';', doublequote=False)
+        nom_sortie='sortie_PIONSA.csv'
+        with open(nom_sortie,'w',newline='', encoding='utf-8') as monFichierSortie:
+            writer = csv.writer(monFichierSortie, delimiter=';', quoting=csv.QUOTE_NONE, escapechar='', quotechar='')
+            for row in reader:
+                officieux='1'
+                if row[2]=='':
+                    bEcrire=0
+                elif row[4]=='':
+                    bEcrire=0
+                elif row[5]=='':
+                    bEcrire=0
+                elif 'Vintage' in row[2]:
+                    bEcrire=0
+                else:
+                    bEcrire = 1
+                    # Nom du chateau
+                    chateau=unidecode(row[0])+' '+unidecode(row[1])
+                    chateau=chateau.replace(' MAGNUM','')
+                    chateau=chateau.replace('JEROBOAM','')
+                    chateau=chateau.replace('HALF','')
+                    chateau=chateau.replace('é','e')
+                    chateau=chateau.replace('è','e')
+                    chateau=chateau.replace('ê','e')
+                    chateau=chateau.replace('û','u')
+                    chateau=chateau.replace('’','')
+                    chateau=chateau.replace('"','')
+                    chateau=chateau.replace('VDP (white)','')
+                    chateau=chateau.replace('VDP (red)','')
+                    chateau=chateau.replace('IGP white MAGNUM','')
+                    if "Assortment" in chateau:
+                        # lAsso=len(chateau)
+                        sAsso=chateau[30:]
+                        # rAsso=chateau[30:lAsso]
+                        chateau=chateau.replace(sAsso,'')
+                    else:
+                        chateau=chateau
+
+                    # chateau=re.sub(r'[0-9]','',chateau) ??
+                    # année
+                    annee=row[2]
+                    # quantite
+                    if 'x' in row[3]:
+                        uqte = row[3].split('x')[0]
+                        quantite = int(uqte)*int(row[4])
+                        # quantite = row[3]
+                        # i = row[3].find('x')
+                        # a = quantite[:int(i)]
+                        # b = quantite[int(i)+1:]
+                        # quantite = int(a)*int(b)
+                    else:
+                        quantite=unidecode(row[4])
+
+                    # Format de la bouteille et conditionnement
+                    if row[3]=='37,5cl':
+                        formatb='DE'
+                        if int(quantite)<24:
+                            conditionnement='UNITE'
+                            commentaire='Verif cdt - '+row[8]
+                        else:
+                            conditionnement='CBO24DE'
+                            commentaire='Verif cdt - '+row[8]
+                    elif row[3]=='75cl':
+                        formatb='BO'
+                        if int(quantite)<12:
+                            conditionnement='UNITE'
+                            commentaire='Verif cdt - '+row[8]
+                        else:
+                            conditionnement='CBO12'
+                            commentaire='Verif cdt - '+row[8]
+                    elif row[3]=='6x75cl':
+                        formatb='BO'
+                        conditionnement='COLLEC'
+                        commentaire='Verif cdt - '+row[8]
+                    elif row[3]=='12x75cl':
+                        formatb='BO'
+                        conditionnement='COLLEC'
+                        commentaire='Verif cdt - '+row[8]
+                    elif row[3]=='4x75cl':
+                        formatb='BO'
+                        conditionnement='COLLEC'
+                        commentaire='Verif cdt - '+row[8]
+                    elif row[3]=='2x75cl':
+                        formatb='BO'
+                        conditionnement='COLLEC'
+                        commentaire='Verif cdt - '+row[8]
+                    elif row[3]=='3x75cl':
+                        formatb='BO'
+                        conditionnement='COLLEC'
+                        commentaire='Verif cdt - '+row[8]
+                    elif row[3]=='5x75cl':
+                        formatb='BO'
+                        conditionnement='COLLEC'
+                        commentaire='Verif cdt - '+row[8]
+                    elif row[3]=='7x75cl':
+                        formatb='BO'
+                        conditionnement='COLLEC'
+                        commentaire='Verif cdt - '+row[8]
+                    elif row[3]=='8x75cl':
+                        formatb='BO'
+                        conditionnement='COLLEC'
+                        commentaire='Verif cdt - '+row[8]
+                    elif row[3]=='9x75cl':
+                        formatb='BO'
+                        conditionnement='COLLEC'
+                        commentaire='Verif cdt - '+row[8]
+                    elif row[3]=='10x75cl':
+                        formatb='BO'
+                        conditionnement='COLLEC'
+                        commentaire='Verif cdt - '+row[8]
+                    elif row[3]=='11x75cl':
+                        formatb='BO'
+                        conditionnement='COLLEC'
+                        commentaire='Verif cdt - '+row[8]
+                    elif row[3]=='150cl':
+                        formatb='MG'
+                        if int(quantite)<6:
+                            conditionnement='UNITE'
+                            commentaire='Verif cdt - '+row[8]
+                        else:
+                            conditionnement='CBO6'
+                            commentaire='Verif cdt - '+row[8]
+                    elif row[3]=='150 cl':
+                        formatb='MG'
+                        if int(quantite)<6:
+                            conditionnement='UNITE'
+                            commentaire='Verif cdt - '+row[8]
+                        else:
+                            conditionnement='CBO6'
+                            commentaire='Verif cdt - '+row[8]
+                    elif row[3]=='300cl':
+                        formatb='DM'
+                        if int(quantite)<3:
+                            conditionnement='UNITE'
+                            commentaire='Verif cdt - '+row[8]
+                        else:
+                            conditionnement='CBO3'
+                            commentaire='Verif cdt - '+row[8]
+                    elif row[3]=='900cl':
+                        formatb='SA'
+                        conditionnement='CBO1'
+                        commentaire='Verif cdt - '+row[8]
+                    else :
+                        formatb=row[3]
+                        conditionnement=''
+                        commentaire='Verif cdt - '+row[8]
+
+                    if "Assortment" in chateau:
+                        commentaire=commentaire+' '+sAsso
+                    # Prix
+                    prix=unidecode(row[5])
+                    prix=prix.replace('.',',')
+                    prix=prix.replace(' EUR','')
+                    prix = prix.replace(' ','')
+                    if bEcrire==1:
+
+                        # On fabrique la nouvelle ligne dans l'ordre voulu
+                        newRow=[chateau,annee,formatb,prix,quantite,conditionnement,commentaire,officieux]
+                        writer.writerow(newRow)
+            monFichierEntre.close()
