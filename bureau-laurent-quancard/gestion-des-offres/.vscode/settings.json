@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": [
+        "./gestion_tarifs_automatises/Tarifs/batchs/fonctions_profils",
+        "./gestion_tarifs_automatises/Tarifs/batchs/fonctions_profils/model"
+    ]
+}
